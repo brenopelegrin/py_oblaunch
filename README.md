@@ -1,2 +1,2 @@
 # py_oblaunch
- Oblique launch with air resitance.
+ Oblique launch with air resistance.
