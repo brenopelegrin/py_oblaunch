@@ -5,14 +5,13 @@ import math
 
 g = 9.81      # m/s²
 N = 20000     # número de passos no loop
-height = 50    # Initial height (0 = ground)
-iv = 0      # Initial velocity
+height = 0    # Initial height (0 = ground)
+iv = 30      # Initial velocity
 
 #Nota: neste algoritmo, adotamos a trajetória para cima como positiva. 
     
 def compare(a, b, dt, time):
     error=subtract(a, b)
-    print("Ultimo erro para dt={} : {}".format(dt, error[len(error)-1]))
     plt.figure(2) #Define a figura 2
     plt.plot(time, error[:,0], label='Δt = '+str(dt)+' s') #Plota o gráfico de erro x tempo na figura 2
 
@@ -29,8 +28,7 @@ def step(s, dt):
 plt.figure(1)
 
 def main():
-    arraydt=[0.2, 0.1, 0.01, 0.001] #Define a matriz de dt
-    
+    arraydt=[0.2, 0.1, 0.01, 0.001] #Lista de dt
     for dt in arraydt:
         time=zeros([N])
         theoric=zeros([N, 2], float)
@@ -38,10 +36,6 @@ def main():
         mat[0] = height,iv
         theoric[0] = height,iv
         time[0] = 0.0
-        #Matriz:
-        #1ª coluna = s
-        #2ª coluna = v
-        #Sintaxe de chamada: matriz[linha, coluna] = y
         j=0
         while mat[j,0]>=0 and j<=(N-2):
             mat[j+1] = step(mat[j], dt)       
@@ -52,10 +46,9 @@ def main():
         mat=mat[:j]
         theoric=theoric[:j]
         plt.figure(1)
-        plt.plot(time, mat[:,0], label='Integração (dt = '+str(dt)+" s)") #Plota a matriz simulada na figura 1
-        plt.plot(time, theoric[:,0], label='Teórico (dt = '+str(dt)+" s)") #Plota a matriz simulada na figura 1
-        compare(mat, theoric, dt, time) #Chama a funcao de comparacao
-        
+        plt.plot(time, mat[:,0], label='Δt = '+str(dt)+" s")
+        plt.plot(time, theoric[:,0], label='Teórico (Δt = '+str(dt)+" s)")
+        compare(mat, theoric, dt, time)
     ############## CONFIGURAÇÃO DOS GRÁFICOS ##########
     plt.figure(1)
     plt.xlabel("Tempo (s)")
@@ -71,10 +64,8 @@ def main():
     plt.figure(2)
     plt.xlabel("Tempo (s)")
     plt.ylabel("Erro (m)")
-    plt.title("Erro (Diferença Integração x Teórico)")
+    plt.title("Erro (Diferença simulado x teórico)")
     plt.legend()
-    
     plt.show()
-#-----------------------------------------------------------------------------------------------------------------------#
 if __name__ == '__main__':
     main()
