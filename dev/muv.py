@@ -70,10 +70,6 @@ def main():
             j+=1
         time=time[:j]
         mat=mat[:j]
-        #if dt == 0.001 or dt == 0.01:
-            #for x in range(len(a)-1):
-                #if a[x] != 0:
-                    #print(a[x])
         theoric=theoric[:j]
         plt.figure(1)
         if graph == 1 or graph == 2:
