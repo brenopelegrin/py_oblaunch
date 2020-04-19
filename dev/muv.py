@@ -45,8 +45,8 @@ def main():
     for dt in arraydt:
         global g, graph
         time=zeros([N])
-        ae=zeros([N], float)
-        ae[0]=-g
+        #ae=zeros([N], float)
+        #ae[0]=-g
         theoric=zeros([N, 2], float)
         mat=zeros([N, 2], float)
         mat[0] = height,iv
