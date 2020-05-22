@@ -3,22 +3,26 @@ from numpy import *
 import matplotlib.pyplot as plt
 import math
 
-g = 9.81      # m/s²
-N = 20000     # Number of steps in the loop
-height = 500  # Initial height in meters (0 = ground)
-iv = 0        # Initial velocity in m/s
-m = 10        # Mass in kg
-b = 0.5       # Drag constant
-# ---- para casos futuros ----#
-ap = 1.275    # Air pressure in kg/m³
-d = 0.5       # Drag coefficient
-area = 0.0318 # Area in meters
-fr = -0.5*ap*d*area # Must be multiplied by v^2 in the step
+N = 100000        # Number of steps in the loop
+dt = 0.001        # Step size
+g = 9.7848        # Acceleration of gravity in m/s² (Latitude 20º, Altitude 500m, segundo Wilson Lopes em VARIAÇÃO DA ACELERAÇÃO DA GRAVIDADE COM A LATITUDE E ALTITUDE)
+height = 1        # Initial height in meters (0 = ground)
+iv = 0            # Initial velocity in m/s
+b = 5             # Drag constant in kg/m
+#---- Sphere Measurements ----#
+r = 2             # Radius
+m = 1             # Mass in kg
+# ---- Stoke's Law -----------#
+ap = 1.275             # Air pressure in kg/m³
+d = 0.5                # Drag coefficient of a smooth sphere (according to NASA)
+area = pi*r*r          # Area in meters squared
+df = -0.5*ap*d*area     # Drag force (Must be multiplied by v^2 in the step)
 #-----------------------------#
-graph = 2     #(Debug) Define quais gráficos serão plotados. 0 para apenas teórico, 1 para apenas Euler e 2 para ambos.
+
+graph = 1     #(Debug) Define quais gráficos serão plotados. 0 para apenas teórico, 1 para apenas Euler e 2 para ambos.
 error = 0     #(Debug) Define se o erro será plotado. 0 para não, 1 para sim.
 
-#Nota: neste algoritmo, adotamos a trajetória para cima como positiva. 
+#Note that in this algorithm we adopt the upward path as positive.
     
 def compare(a, b, dt, time):
     global error
@@ -37,67 +41,72 @@ def step(s, a, dt):
     v = s[1] +a*dt
     return array([y, v])
 
-plt.figure(1)
-
-def main():
-    arraydt=[0.2, 0.1, 0.01, 0.001] #Define a matriz de dt
-    
-    for dt in arraydt:
-        global g, graph
-        time=zeros([N])
-        #ae=zeros([N], float)
-        #ae[0]=-g
-        theoric=zeros([N, 2], float)
-        mat=zeros([N, 2], float)
-        mat[0] = height,iv
-        theoric[0] = height,iv
-        time[0] = 0.0
-        #Matriz:
-        #1ª coluna = s
-        #2ª coluna = v
-        #Sintaxe de chamada: matriz[linha, coluna] = y
-        j=0
-        while mat[j,0]>=0 and j<=(N-2):
-            time[j+1] = time[j]+dt
-            #------ metodos de aceleração (teste) -----#
-            ae = (-b*mat[j,1]/m)-g #aceleração (simulado) 
-            at = (-b*theoric[j,1]/m)-g #aceleração (teórico)
-            #at = -g*(exp(-b*time[j]/m)) #metodo teorico da função a(t)
-            #ae[j+1] = ae[j] - (b*g/(exp(b*dt/m))*m)*dt #metodo de euler da função a(t)
-            #------------------------------------------#
-            mat[j+1] = step(mat[j], ae, dt)
-            theoric[j+1] = theoricf(time[j+1], at) #chama a função teorico e passa o tempo
-            j+=1
-        time=time[:j]
-        mat=mat[:j]
-        theoric=theoric[:j]
-        plt.figure(1)
-        if graph == 1 or graph == 2:
-            plt.plot(time, mat[:,0], label='Integração (dt = '+str(dt)+" s)") #Plota a matriz simulada na figura 1
-        if graph == 0 or graph == 2:
-            plt.plot(time, theoric[:,0], label='Teórico (dt = '+str(dt)+" s)") #Plota a matriz simulada na figura 1
-        compare(mat, theoric, dt, time) #Chama a funcao de comparacao
+for i in 0, b:
+    time=zeros([N])
+    time[0] = 0.0
+    ae=zeros([N], float)
+    ae[0]=-g
+    #theoric=zeros([N, 2], float)
+    #theoric[0] = height,iv
+    mat=zeros([N, 2], float)
+    mat[0] = height,iv
+    #Matriz:
+    #1ª coluna = s
+    #2ª coluna = v
+    #Sintaxe de chamada: matriz[linha, coluna] = y
+    j=0
+    while mat[j,0]>=0 and j<=(N-2):
+        time[j+1] = time[j]+dt
+        ae[j+1] = (-i*mat[j,1]/m)-g #aceleração (simulado) 
+        mat[j+1] = step(mat[j], ae[j], dt)
+        #at = (-b*theoric[j,1]/m)-g #aceleração (teórico)
+        #theoric[j+1] = theoricf(time[j+1], at[j]) #chama a função teorico e passa o tempo
+        j+=1
+    time=time[:j]
+    if i == b:
+        if b>0:
+            vt=(m*g)/b
+            print("Velocidade terminal: ",-vt,"m/s")
+    mat=mat[:j]
+    ae=ae[:j]
+    #theoric=theoric[:j]
+    if graph == 1 or graph == 2:
+        if i == b:
+            plt.figure(1)
+            plt.plot(time, mat[:,0], label='Euler (dt = '+str(dt)+' s, b='+str(i)) #Plota a matriz simulada na figura 1
+            plt.figure(3)
+            plt.plot(time, mat[:,1], label='Euler (dt = '+str(dt)+' s, b='+str(i)) #Plota a matriz simulada na figura 3
+    #if graph == 0 or graph == 2:
+        #plt.plot(time, theoric[:,1], label='Teórico (dt = '+str(dt)+" s)") #Plota a matriz simulada na figura 1
+    #compare(mat, theoric, dt, time) #Chama a funcao de comparacao
         
-    ############## CONFIGURAÇÃO DOS GRÁFICOS ##########
-    plt.figure(1)
+############## CONFIGURAÇÃO DOS GRÁFICOS ##########
+plt.figure(1)
+plt.xlabel("Tempo (s)")
+plt.ylabel("Altura (m)")
+if iv > 0 and height >= 0:
+    plt.title("Lançamento vertical para cima (MUV) - Posição")
+if iv < 0 and height > 0:
+    plt.title("Lançamento vertical para baixo (MUV) - Posição")
+if iv == 0 and height > 0:
+    plt.title('Queda com Resistência do Ar (MUV) - Posição')
+plt.legend()
+
+plt.figure(3)
+plt.xlabel("Tempo (s)")
+plt.ylabel("Velocidade (m/s)")
+if iv > 0 and height >= 0:
+    plt.title("Lançamento vertical para cima (MUV) - Velocidade")
+if iv < 0 and height > 0:
+    plt.title("Lançamento vertical para baixo (MUV) - Velocidade")
+if iv == 0 and height > 0:
+    plt.title('Queda com Resistência do Ar (MUV) - Velocidade')
+plt.legend()
+    
+if error == 1:
+    plt.figure(2)
     plt.xlabel("Tempo (s)")
-    plt.ylabel("Altura (m)")
-    if iv > 0 and height >= 0:
-        plt.title("Lançamento vertical para cima (MUV)")
-    if iv < 0 and height > 0:
-        plt.title("Lançamento vertical para baixo (MUV)")
-    if iv == 0 and height > 0:
-        plt.title("Queda livre (MUV)")
-    plt.legend()
-    
-    if error == 1:
-        plt.figure(2)
-        plt.xlabel("Tempo (s)")
-        plt.ylabel("Erro (m)")
-        plt.title("Erro (Diferença Integração x Teórico)")
-    plt.legend()
-    
-    plt.show()
-#-----------------------------------------------------------------------------------------------------------------------#
-if __name__ == '__main__':
-    main()
+    plt.ylabel("Erro (m)")
+    plt.title("Erro (Diferença Euelr x Teórico)")
+plt.legend()
+plt.show()
