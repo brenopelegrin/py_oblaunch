@@ -38,34 +38,37 @@ def theoricf(t, a):
 def plot(x, y, choice):
     if choice == 1:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='Stokes com v^2') #Plota a matriz simulada na figura 1
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='Stokes com v^2') #Plota a matriz simulada na figura 3
     if choice == 2:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='Stokes com v^1') #Plota a matriz simulada na figura 1
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='Stokes com v^1') #Plota a matriz simulada na figura 3
     if choice == 3:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='bv^2') #Plota a matriz simulada na figura 1
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='bv^2') #Plota a matriz simulada na figura 3
     if choice == 4:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='-bv') #Plota a matriz simulada na figura 1
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Euler (dt = '+str(dt)+' s)') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='-bv') #Plota a matriz simulada na figura 3
         
+def graphconfig(choice):
     plt.figure(1)
     if choice == 1:
-        plt.xlabel("Tempo (s) \n Usando a Lei de Stokes com v^2")
+        plt.xlabel('Tempo (s) \n Usando a Lei de Stokes com v^2 \n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 2:
-        plt.xlabel("Tempo (s) \n Usando a Lei de Stokes com v^1")
+        plt.xlabel('Tempo (s) \n Usando a Lei de Stokes com v^1 \n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 3:
-        plt.xlabel('Tempo (s) \n Usando -b*v^2 onde b = '+str(b))
+        plt.xlabel('Tempo (s) \n Usando -b*v^2 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 4:
-        plt.xlabel('Tempo (s) \n Usando -b*v^1 onde b = '+str(b))
+        plt.xlabel('Tempo (s) \n Usando -b*v^1 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
+    if choice == 5:
+        plt.xlabel('Tempo (s) \n Usando todas as equações, b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
     plt.ylabel("Altura (m)")
     if iv > 0 and height >= 0:
         plt.title("Lançamento vertical para cima (MUV) - Posição")
@@ -74,17 +77,18 @@ def plot(x, y, choice):
     if iv == 0 and height > 0:
         plt.title('Queda com Resistência do Ar - Posição')
     plt.legend()
-    
 
     plt.figure(3)
     if choice == 1:
-        plt.xlabel("Tempo (s) \n Usando a Lei de Stokes com v^2")
+        plt.xlabel('Tempo (s) \n Usando a Lei de Stokes com v^2 \n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 2:
-        plt.xlabel("Tempo (s) \n Usando a Lei de Stokes com v^1")
+        plt.xlabel('Tempo (s) \n Usando a Lei de Stokes com v^1 \n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 3:
-        plt.xlabel('Tempo (s) \n Usando -b*v^2 onde b = '+str(b))
+        plt.xlabel('Tempo (s) \n Usando -b*v^2 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
     if choice == 4:
-        plt.xlabel('Tempo (s) \n Usando -b*v^1 onde b = '+str(b))
+        plt.xlabel('Tempo (s) \n Usando -b*v^1 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
+    if choice == 5:
+        plt.xlabel('Tempo (s) \n Usando todas as equações, b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+')')
     plt.ylabel("Velocidade (m/s)")
     if iv > 0 and height >= 0:
         plt.title("Lançamento vertical para cima (MUV) - Velocidade")
@@ -167,23 +171,45 @@ def configure(state):
     print("[2] Stokes' Law with velocity on 1st power")
     print("[3] bv²")
     print("[4] -bv")
+    print("[5] All previous equations in the same graph")
     choice=int(input("Type the number of the equation: "))
     if choice == 1:
         print("Using the equation [{}]...".format(choice))
         time, mat, a = stokes(height, iv, df, 2)
         plot(time, mat, choice)
+        graphconfig(choice)
     elif choice == 2:
         print("Using the equation [{}]...".format(choice))
         time, mat, a = stokes(height, iv, df, 1)
         plot(time, mat, choice)
+        graphconfig(choice)
     elif choice == 3:
         print("Using the equation [{}]...".format(choice))
         time, mat, a = simple(height, iv, b, 2)
         plot(time, mat, choice)
+        graphconfig(choice)
     elif choice == 4:
         print("Using the equation [{}]...".format(choice))
         time, mat, a = simple(height, iv, b, 1)
         plot(time, mat, choice)
+        graphconfig(choice)
+    elif choice == 5:
+        print("Using all equations...")
+        for i in range(1, 5):
+            if i == 1:
+                time, mat, a = stokes(height, iv, df, 2)
+                plot(time, mat, i)
+            if i == 2:
+                time, mat, a = stokes(height, iv, df, 1)
+                plot(time, mat, i)
+            if i == 3:
+                time, mat, a = simple(height, iv, b, 2)
+                plot(time, mat, i)
+            if i == 4:
+                time, mat, a = simple(height, iv, b, 1)
+                plot(time, mat, i)
+        graphconfig(choice)
+                
     else:
         print("---")
         print("[!] You have entered an invalid option.")
