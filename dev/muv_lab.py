@@ -6,17 +6,17 @@ import math
 N = 100000        # Number of steps in the loop
 dt = 0.001        # Step size
 g = 9.7848        # Acceleration of gravity in m/s² (Latitude 20º, Altitude 500m, segundo Wilson Lopes em VARIAÇÃO DA ACELERAÇÃO DA GRAVIDADE COM A LATITUDE E ALTITUDE)
-height = 1        # Initial height in meters (0 = ground)
-iv = 0            # Initial velocity in m/s
-b = 5             # Drag constant in kg/m
+height = 10        # Initial height in meters (0 = ground)
+iv = -2           # Initial velocity in m/s
+b = 0.02             # Drag constant in kg/m
 #---- Sphere Measurements ----#
-r = 2             # Radius
+r = 0.02             # Radius in meters
 m = 1             # Mass in kg
 # ---- Stokes' Law -----------#
 ap = 1.275             # Air pressure in kg/m³
 d = 0.5                # Drag coefficient of a smooth sphere (according to NASA)
 area = pi*r*r          # Area in meters squared
-df = -0.5*ap*d*area    # Drag force (Must be multiplied by v^2 in the step)
+df = 0.5*ap*d*area     # Drag force (Must be multiplied by v^2 in the step)
 #-----------------------------#
 
 error = 0     #(Debug) Define se o erro será plotado. 0 para não, 1 para sim.
@@ -28,7 +28,7 @@ def compare(a, b, dt, time):
     if error == 1:
         error=subtract(a, b)
         plt.figure(2) #Define a figura 2
-        plt.plot(time, error[:,0], label='Δt = '+str(dt)+' s') #Plota o gráfico de erro x tempo na figura 2
+        plt.plot(time, error[:,0], label='Δt = '+str(dt)+' s')
 
 def theoricf(t, a):
     v = iv+(a*t)
@@ -38,24 +38,24 @@ def theoricf(t, a):
 def plot(x, y, choice):
     if choice == 1:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Stokes com v^2') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='Stokes com v^2')
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Stokes com v^2') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='Stokes com v^2')
     if choice == 2:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='Stokes com v^1') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='Stokes com v^1')
         plt.figure(3)
-        plt.plot(x, y[:,1], label='Stokes com v^1') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='Stokes com v^1')
     if choice == 3:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='bv^2') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='bv^2')
         plt.figure(3)
-        plt.plot(x, y[:,1], label='bv^2') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='bv^2')
     if choice == 4:
         plt.figure(1)
-        plt.plot(x, y[:,0], label='-bv') #Plota a matriz simulada na figura 1
+        plt.plot(x, y[:,0], label='-bv')
         plt.figure(3)
-        plt.plot(x, y[:,1], label='-bv') #Plota a matriz simulada na figura 3
+        plt.plot(x, y[:,1], label='-bv')
         
 def graphconfig(choice):
     plt.figure(1)
@@ -111,49 +111,27 @@ def step(s, a, dt):
     v = s[1] +a*dt
     return array([y, v])
 
-def stokes(height, iv, df, degree):
+def calc(height, iv, df, degree):
     global g, dt
     time=zeros([N])
     time[0] = 0.0
     a=zeros([N], float)
     a[0]=-g
     mat=zeros([N, 2], float)
-    mat[0] = height,iv
+    mat[0] = height, iv
     j=0
-    while mat[j,0]>=0 and j<=(N-2):
+    while (mat[j,0]+r)>=0 and j<=(N-2):
         time[j+1] = time[j]+dt
         if degree == 2:
-            a[j+1] = (-df*(mat[j,1])**degree/m)-g
-        else:
             a[j+1] = (df*(mat[j,1])**degree/m)-g
+        else:
+            a[j+1] = (-df*(mat[j,1])**degree/m)-g
         mat[j+1] = step(mat[j], a[j], dt)
         j+=1
     time=time[:j]
     mat=mat[:j]
     a=a[:j]
     return (time, mat, a)
-    
-def simple(height, iv, b, degree):
-    global g, dt
-    time=zeros([N])
-    time[0] = 0.0
-    a=zeros([N], float)
-    a[0]=-g
-    mat=zeros([N, 2], float)
-    mat[0] = height,iv
-    j=0
-    while mat[j,0]>=0 and j<=(N-2):
-        time[j+1] = time[j]+dt
-        if degree == 2:
-            a[j+1] = (b*(mat[j,1])**degree/m)-g
-        else:
-            a[j+1] = (-b*(mat[j,1])**degree/m)-g
-        mat[j+1] = step(mat[j], a[j], dt)
-        j+=1
-    time=time[:j]
-    mat=mat[:j]
-    a=a[:j]
-    return(time, mat, a)
 
 def configure(state):
     global height, iv, m, r, area, df, b
@@ -164,7 +142,7 @@ def configure(state):
         r=input("Type the radius of the sphere (m): ")
         b=input("Type the value of b: ")
         area = pi*r*r          # Area in meters squared
-        df = -0.5*ap*d*area     # Drag force (Must be multiplied by v^2 in the step)
+        df = 0.5*ap*d*area     # Drag force (Must be multiplied by v^2 in the step)
     print("---")
     print("Which equation do you want to use?")
     print("[1] Stokes' Law with velocity squared")
@@ -175,38 +153,38 @@ def configure(state):
     choice=int(input("Type the number of the equation: "))
     if choice == 1:
         print("Using the equation [{}]...".format(choice))
-        time, mat, a = stokes(height, iv, df, 2)
+        time, mat, a = calc(height, iv, df, 2)
         plot(time, mat, choice)
         graphconfig(choice)
     elif choice == 2:
         print("Using the equation [{}]...".format(choice))
-        time, mat, a = stokes(height, iv, df, 1)
+        time, mat, a = calc(height, iv, df, 1)
         plot(time, mat, choice)
         graphconfig(choice)
     elif choice == 3:
         print("Using the equation [{}]...".format(choice))
-        time, mat, a = simple(height, iv, b, 2)
+        time, mat, a = calc(height, iv, b, 2)
         plot(time, mat, choice)
         graphconfig(choice)
     elif choice == 4:
         print("Using the equation [{}]...".format(choice))
-        time, mat, a = simple(height, iv, b, 1)
+        time, mat, a = calc(height, iv, b, 1)
         plot(time, mat, choice)
         graphconfig(choice)
     elif choice == 5:
         print("Using all equations...")
         for i in range(1, 5):
             if i == 1:
-                time, mat, a = stokes(height, iv, df, 2)
+                time, mat, a = calc(height, iv, df, 2)
                 plot(time, mat, i)
             if i == 2:
-                time, mat, a = stokes(height, iv, df, 1)
+                time, mat, a = calc(height, iv, df, 1)
                 plot(time, mat, i)
             if i == 3:
-                time, mat, a = simple(height, iv, b, 2)
+                time, mat, a = calc(height, iv, b, 2)
                 plot(time, mat, i)
             if i == 4:
-                time, mat, a = simple(height, iv, b, 1)
+                time, mat, a = calc(height, iv, b, 1)
                 plot(time, mat, i)
         graphconfig(choice)
                 
