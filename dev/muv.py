@@ -7,7 +7,7 @@ N = 100000        # Number of steps in the loop
 dt = 0.001        # Step size
 g = 9.7848        # Acceleration of gravity in m/s² (Latitude 20º, Altitude 500m, segundo Wilson Lopes em VARIAÇÃO DA ACELERAÇÃO DA GRAVIDADE COM A LATITUDE E ALTITUDE)
 height = 1        # Initial height in meters (0 = ground)
-iv = 20            # Initial velocity in m/s
+iv = 0            # Initial velocity in m/s
 b = 5             # Drag constant in kg/m
 #---- Sphere Measurements ----#
 r = 2             # Radius
