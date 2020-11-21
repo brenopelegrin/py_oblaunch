@@ -1,23 +1,17 @@
 # -*- coding: utf-8 -*-
-#commit v4.0
+#commit alternativo v1.0
+#apenas movimento vertical
 from numpy import *
 import matplotlib.pyplot as plt
 from math import *
 
 dt = 0.001        # Step size
 g = 9.7848        # Acceleration of gravity in m/s² (Latitude 20º, Altitude 500m, segundo Wilson Lopes em VARIAÇÃO DA ACELERAÇÃO DA GRAVIDADE COM A LATITUDE E ALTITUDE)
-#gravidade
-
-s0 = (0, 20)      # Initial position in meters (y=0 = ground)
-#s0 = (x,y)
-
+s0 = 30       # Initial position in meters (0 = ground)
 iv = 0            # Initial velocity in m/s
-#modulo v inicial
-
-angle = pi/2
 #---- Sphere Measurements ----#
-r = 0      # Radius in centimeters
-m = 1000/(10**3) # Mass in g
+r = 2/(10**2)      # Radius in centimeters
+m = 2.7/(10**3) # Mass in g
 #-----------------------------#
 b = (18720*(10**-9))*r # Viscosidade dinâmica em kg/m . s para 30ºC
 # ---- Stokes' Law -----------#
@@ -32,7 +26,6 @@ error = 0     #(Debug) Define se o erro será plotado. 0 para não, 1 para sim.
 yt, f1 = plt.subplots()
 #fig2, f2 = plt.subplots()
 vt, f3 = plt.subplots()
-yx, f4 = plt.subplots()
 
 #Note that in this algorithm we adopt the upward path as positive.
     
@@ -49,58 +42,43 @@ def theoricf(t, a):
     return array([y, v])
 
 def plot(t, v, s, lbl):
-    global f1, f2, f3, f4
-    f1.plot(t, s[:,1], label=lbl)
+    global f1, f2, f3
+    f1.plot(t, s, label=lbl)
     f3.plot(t, v, label=lbl)
-    f4.plot(s[:,0], s[:,1], label=lbl)
         
 def graphconfig(choice):
-    global f1, f2, f3, f4
+    global f1, f2, f3
     if choice == 1:
         f1.set_xlabel('Tempo (s) \n Usando a Lei de Stokes com v^2 \n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         f3.set_xlabel('Tempo (s) \n Usando a Lei de Stokes com v^2 \n Método numérico: Euler (dt = '+str(dt)+') \n Velocidade inicial (m/s): '+str(iv))
-        f4.set_xlabel('Posição horizontal (m) \n Usando a Lei de Stokes com v^2 \n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
     if choice == 2:
         f1.set_xlabel('Tempo (s) \n Usando a Lei de Stokes com v^1 \n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         f3.set_xlabel('Tempo (s) \n Usando a Lei de Stokes com v^1 \n Método numérico: Euler (dt = '+str(dt)+') \n Velocidade inicial (m/s): '+str(iv))
-        f4.set_xlabel('Posição horizontal (m) \n Usando a Lei de Stokes com v^1 \n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
     if choice == 3:
         f1.set_xlabel('Tempo (s) \n Usando b*v^2 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         f3.set_xlabel('Tempo (s) \n Usando b*v^2 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Velocidade inicial (m/s): '+str(iv))
-        f4.set_xlabel('Posição horizontal (m) \n Usando b*v^2 onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
     if choice == 4:
         f1.set_xlabel('Tempo (s) \n Usando b*v onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         f3.set_xlabel('Tempo (s) \n Usando b*v onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Velocidade inicial (m/s): '+str(iv))
-        f4.set_xlabel('Posição horizontal (m) \n Usando b*v onde b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
     if choice == 5:
         f1.set_xlabel('Tempo (s) \n Usando todas as equações, b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         f3.set_xlabel('Tempo (s) \n Usando todas as equações, b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Velocidade inicial (m/s): '+str(iv))
-        f4.set_xlabel('Posição horizontal (m) \n Usando todas as equações, b = '+str(b)+'\n Método numérico: Euler (dt = '+str(dt)+') \n Posição inicial (m): '+str(s0))
         
     f1.set_ylabel("Altura (m)")
     f3.set_ylabel("Velocidade (m/s)")
-    f4.set_ylabel("Posição vertical (m)")
     
-    if iv*sin(angle) > 0 and s0[1] >= 0:
+    if iv > 0:
         f1.set_title("Lançamento vertical para cima - Posição")
         f3.set_title("Lançamento vertical para cima - Velocidade")
-        f4.set_title("Lançamento vertical para cima - Trajetória")
-    if iv*sin(angle) < 0 and s0[1] > 0:
+    if iv < 0:
         f1.set_title("Lançamento vertical para baixo - Posição")
         f3.set_title("Lançamento vertical para baixo - Velocidade")
-        f4.set_title("Lançamento vertical para baixo - Trajetória")
-    if iv*sin(angle) == 0 and s0[1] > 0:
+    if iv == 0:
         f1.set_title('Queda com Resistência do Ar - Posição')
         f3.set_title('Queda com Resistência do Ar - Velocidade')
-        f4.set_title('Queda com Resistência do Ar - Trajetória')
-    if round(cos(angle), 6) != 0.0:
-        f1.set_title('Lançamento obliquo - Posição')
-        f3.set_title('Lançamento obliquo - Velocidade')
-        f4.set_title('Lançamento obliquo - Trajetória')
         
     f1.legend()        
     f3.legend()
-    f4.legend()
     
     if error == 1:
         f2.set_xlabel("Tempo (s)")
@@ -109,57 +87,45 @@ def graphconfig(choice):
         f2.legend()
 
 def F(s, v, t, f):
-    return (0, -m*g) -f*v
+    return -m*g -f*v
 
 def step(a, v, s, dt):
-    y = s + v*dt
-    v2 = v + a*dt
-    return v2, y
+    sn = s + v*dt
+    vn = v + a*dt
+    return vn, sn
 
 def calc(s0, iv, f, degree):
     global g, dt, m
     time = array([[0]])
-    a = array([[0, -g]])
-    v = array([[iv*cos(angle), iv*sin(angle)]])
-    s = array([s0])
+    if degree == 2:
+        a = array([[F(0, iv, 0, f*abs(iv))/m]])
+    else:
+        a = array([[F(0, iv, 0, f)/m]])
+    v = array([[iv]])
+    s = array([[s0]])
     stepr = array([[0, 0]])
     j=0
-    while s[j,1]+r >= 0:
+    while s[j]+r >= 0:
         #06/07 - removido estrutura baseada em N, adicionado append nas matrizes
-        #adicionado a matriz theta que armazena o angulo pra cada passo
-        time = append(time, [time[j] + dt], axis=0)
-        if degree == 2 and j != 0:
-            a = append(a, [F(s[j], v[j], time[j+1], f*abs(v[j]))/m], axis=0)
-        if degree == 1 and j != 0:
-            a = append(a, [F(s[j], v[j], time[j+1], f)/m], axis=0)
-        stepr = step(a[j], v[j], s[j], dt)            
-        v = append(v, [stepr[0]], axis=0)
-        s = append(s, [stepr[1]], axis=0)
+        t2 = [time[j] + dt]
+        time = vstack((time, t2))
+        if degree == 2:
+            a2 = [F(s[j], v[j], time[j+1], f*abs(v[j]))/m]
+            a = vstack((a, a2))
+        else:
+            a2 = [F(s[j], v[j], time[j+1], f)/m]
+            a = vstack((a, a2))
+        stepr = step(a[j], v[j], s[j], dt)
+        v2 = [stepr[0]]
+        s2 = [stepr[1]]
+        v = vstack((v, v2))
+        s = vstack((s, s2))
         j+=1
     time = time[:j]
     a = a[:j]
     v = v[:j]
     s = s[:j]
-    #06/07 - reescrita do vetor resultante
-    #Corrigir erro: sign() retorna matriz com 2 colunas, e ao dividir v/vchar alguns valores resultam em 0/0
-    #dica: fazer condicao a seguir pois a matriz só terá (+1) e (-1):
-    vchar = sign(v)
-    for i in range(len(vchar)):
-        if vchar[i, 0] != 0 and vchar[i, 1] != 0:
-            vchar[i] = vchar[i, 0]*vchar[i, 1]
-        if vchar[i,0] == 0 and vchar[i,1] != 0 or vchar[i,1] == 0 and vchar[i,0] != 0:
-            vchar[i] = vchar[i, 0]+vchar[i, 1]
-    vchar = vchar[:, 0]
-    vr = zeros([len(v), 1])
-    theta = zeros([len(v), 1])
-    for i in range(len(v)):
-        if i == 0:
-            theta[0] = angle
-        else:
-            theta[i] = arcsin(linalg.norm(v[i, 1])/linalg.norm(v[i]))
-        vr[i] = linalg.norm(v[i])
-        vr[i] = vr[i] * vchar[i]
-    return (time, vr, s, a)
+    return (time, v, s, a)
 
 def configure(state):
     #06/07 - necessário refazer a estrutura de definição das variáveis e as opções de equações
@@ -223,44 +189,62 @@ def configure(state):
         configure(1)
         
 def reynolds():
-    time, vr, s_bt30m, a = calc(s0, iv, b, 1)
-    vp = abs(vr[len(vr)-1])
+    time, vres, s, a = calc(s0, iv, b, 1)
+    vp = abs(vres[len(vres)-1])
     re=float(vp*r/(1.608*10**-5))
     print("24/Re = ", (24/re))
     print("Numero de Reynolds: ", re)
     
-def simulacao(h, d):
-    global r, m, s0, iv, df, b
-    r = 2/(10**2)
-    m = 2.7/(10**3)
-    s0=(0, h)
-    #Acima bola de ping pong
-    time_pp, vr_pp, s_pp, a_pp = calc(s0, iv, df, d)
-    plot(time_pp, vr_pp, s_pp, 'Bola de ping pong')
-
-    if h == 1:
-        r = 1/(10**2)
-        m = 32.923891/(10**3)
-        s0=(0, h)
-        #Acima bola de aço
-        time_a, vr_a, s_a, a_a = calc(s0, iv, df, d)
-        plot(time_a, vr_a, s_a, 'Bola de aço')
-
-    r = 3.8/(10**2)
-    m = 58/(10**3)
-    s0=(0, h)
-    #Acima bola de tênis
-    time_t, vr_t, s_t, a_t = calc(s0, iv, df, d)
-    plot(time_t, vr_t, s_t, 'Bola de tênis')
-    
-    if h == 30:
-        r = 11.3/(10**2)
-        m = 430/(10**3)
-        s0=(0, h)
-        #Acima bola de futebol
-        time_f, vr_f, s_f, a_f = calc(s0, iv, df, d)
-        plot(time_f, vr_f, s_f, 'Bola de futebol')
-    
-    graphconfig(4)
+def simulacao(h, raio, massa, coef, arrasto, diretorio):
+    global iv, r, m, d, df, area
+    iv = 0
+    #---- Sphere Measurements ----#
+    r = raio/(10**2)      # Radius in centimeters
+    m = massa/(10**3) # Mass in g
+    #-----------------------------#
+    b = (18720*(10**-9))*r # Viscosidade dinâmica em kg/m . s para 30ºC
+    # ---- Stokes' Law -----------#
+    ap = 1.164             # Densidade do ar em kg/m³  
+    d = coef               # Drag coefficient of a smooth sphere
+    area = pi*r*r          # Cross-section area in meters squared
+    df = 0.5*ap*d*area     # Drag force (Must be multiplied by v^2 in the step)
+    if arrasto == 'v':
+        t, v, s, a = calc(s0, iv, b, 1)
+        data=array([[0,0]], dtype=unicode_)
+        data[0]='Nome',diretorio
+        
+        diretorio+="v/"
+        
+        file_t=diretorio+'t.csv'
+        np.savetxt(file_t, t, delimiter=',', fmt='%d')
+        
+        file_v=diretorio+'v.csv'
+        np.savetxt(file_v, v, delimiter=',', fmt='%d')
+        
+        file_s=diretorio+'s.csv'
+        np.savetxt(file_s, s, delimiter=',', fmt='%d')
+        
+        file_a=diretorio+'a.csv'
+        np.savetxt(file_a, a, delimiter=',', fmt='%d')
+        
+        graphconfig(4)
+        
+    if arrasto == 'p':
+        t, v, s, a = calc(s0, iv, df, 2)
+        diretorio+="p/"
+        
+        file_t=diretorio+'t.csv'
+        np.savetxt(file_t, t, delimiter=',', fmt='%d')
+        
+        file_v=diretorio+'v.csv'
+        np.savetxt(file_v, v, delimiter=',', fmt='%d')
+        
+        file_s=diretorio+'s.csv'
+        np.savetxt(file_s, s, delimiter=',', fmt='%d')
+        
+        file_a=diretorio+'a.csv'
+        np.savetxt(file_a, a, delimiter=',', fmt='%d')
+        
+        graphconfig(1)
 
 #configure(1) #Ao invés de configurar, usa os dados do escopo do programa
